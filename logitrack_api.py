@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 from passlib.context import CryptContext
 
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from pydantic import BaseModel, Field
@@ -60,10 +60,10 @@ Base.metadata.create_all(bind=engine)
 # -------------------------------------------------------------------------------------------------------------------------------
 # Schemas (Pydantic)
 class UserPassModel(BaseModel):
-    username: str = Field(..., min_length=1, max_length=50)
-    password: str = Field(..., min_length=8, max_length=50)
-    name: str = Field(..., min_length=1, max_length=100)
-    assigned_hub: str | None = Field(None, max_length=100)
+    username: str = Field(default="jane", max_length=50)
+    password: str = Field(default="admin123", min_length=1, max_length=50)
+    name: str = Field(default="Jane Doe", min_length=1, max_length=100)
+    assigned_hub: str | None = Field(default="Main Hub", max_length=100)
 
 
 class LogIngestionModel(BaseModel):
@@ -75,7 +75,7 @@ class LogIngestionModel(BaseModel):
 # -------------------------------------------------------------------------------------------------------------------------------
 # Security Helpers
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
@@ -132,10 +132,11 @@ def get_db():
 # -------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------------------------------------
 # App & Routes       
-app = FastAPI()
+app = FastAPI(swagger_ui_parameters={"persistAuthorization": True})
 
-@app.post("/register")
+@app.post("/register",tags=["Create Account"])
 def register(payload: UserPassModel, db: Session = Depends(get_db)):
+    
     reg_log = User(
         username = payload.username,
         hashed_password = hash_password(payload.password),
@@ -149,10 +150,10 @@ def register(payload: UserPassModel, db: Session = Depends(get_db)):
     return {"status": "success", "inserted_id": reg_log.id, "record": payload}
 
 
-@app.post("/login")
+@app.post("/login",tags=["Authentication"], include_in_schema=False)
 def login(payload: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    
     user_record = db.query(User).filter(User.username == payload.username).first()
-
     if not user_record or not verify_password(payload.password, user_record.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -161,7 +162,7 @@ def login(payload: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(
     else:
         # SUCCESS PATHWAY: Package the non-sensitive public user claims
         token_claims = {
-        "sub": user_record.username,        # 'sub' stands for Subject (The user's unique identity)
+        "sub": user_record.username,  
         "user_id": user_record.id
         }
         # Generate the signed token string
@@ -172,7 +173,7 @@ def login(payload: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(
         "token_type": "bearer"
         }
     
-@app.post("/logs")
+@app.post("/logs",tags=["Shipment Tracking"])
 def write_log(
     payload: LogIngestionModel,
     db: Session = Depends(get_db),
@@ -180,7 +181,6 @@ def write_log(
     ):    
     # Query the database to find the actual User record for this token
     user_record = db.query(User).filter(User.username == current_user).first()
-
     # If the execution reaches this line, the token is 100% valid!
     new_log = TrackingLog(
         tracking_number=payload.tracking_number,
@@ -198,3 +198,9 @@ def write_log(
         "inserted_id": new_log.id,
         "owner_id": new_log.user_id
     }
+
+
+@app.get("/tracking_database", tags=["Raw Database Content"])
+def show_tracking_database(db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
+    logs = db.query(TrackingLog).all()
+    return logs
