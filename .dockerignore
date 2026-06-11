@@ -1,0 +1,28 @@
+# Environment files
+.env
+.env.example
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# VS Code
+.vscode/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Git files
+.git/
+.gitignore
+
+# Docker files (no need to copy these into the container)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Misc
+README.md
