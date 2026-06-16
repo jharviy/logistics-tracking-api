@@ -64,14 +64,12 @@ async def main():
     # 1. Fetch the token before starting the flood gates
     try:
         token = await get_valid_jwt_token()
-        print(token)
+        print("TOKEN(demo):",token)
     except Exception as e:
         print(e)
         return
     # 2. Package the token into standard HTTP Authorization header format
     headers = {"Authorization": f"Bearer {token}"}
-
-
 
     print(f"🚀 Starting stress test: Sending {TOTAL_REQUESTS} total requests...")
     print(f"🔥 Concurrency Level: {CONCURRENT_USERS} simultaneous workers pushing the container...")

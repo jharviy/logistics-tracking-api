@@ -1,50 +1,104 @@
-# 📦 LogiTrack API (Logistics Tracking & Management)
+# 📦 LogiTrack API
 
-A secure, enterprise-ready RESTful API built to streamline logistics data logging, package transit milestones, and user access control. 
-
-[![Live Demo](https://img.shields.io/badge/Demo-Live%20API-green?style=for-the-badge&logo=railway)](https://logistics-tracking-api-production.up.railway.app/docs)
+A backend REST API for managing shipment logs across logistics hubs — built with **FastAPI**, **PostgreSQL**, and **JWT authentication**. Deployed on Railway with a live PostgreSQL database on Neon.
 
 ---
 
-## 👔 Executive Summary
-In modern supply chain management, data accuracy and security are everything. **LogiTrack** solves the problem of untrusted data entry by providing a highly secure backend system where logistics personnel can log shipments, update item status, and track routes. 
+## 🌐 Live Demo
 
-### Core Features:
-* **Secure Access Control:** Users must register and securely log in to interact with data. Unauthorized external entities cannot manipulate or view logistics logs.
-* **Real-Time Data Management:** Designed to instantly handle data creations, updates, and lookups for moving supply chains.
-* **Interactive Digital Documentation:** Built-in self-documenting interface allowing stakeholders or front-end teams to test capabilities live without writing any code.
+| Link | Description |
+|------|-------------|
+| 👉 **[Interactive Demo](https://logistics-tracking-api-production.up.railway.app/)** | Try the full flow — register, login, and submit shipments |
+| 📄 **[API Documentation](https://logistics-tracking-api-production.up.railway.app/docs)** | Explore and test all endpoints via Swagger UI |
+
+> No installation required. Everything runs in your browser.
 
 ---
 
-## 🌐 Live Interactive Demo & Database Viewer
-You can interact with the live system and view the cloud database immediately without setting up any code locally.
+## ✨ What It Does
 
-👉 **[Launch Live API Documentation & Swagger UI](https://logistics-tracking-api-production.up.railway.app/docs)**
+LogiTrack lets logistics hub operators register, log in, and record incoming shipments. Each shipment log captures the tracking number, SKU, package count, and weight — and automatically associates it with the operator's assigned hub.
 
-### 🔒 Accessing the Secure System (Quick Walkthrough)
-To protect supply chain integrity, both data insertion and database tracking are fully locked behind our JWT security layer. You can use our pre-configured demo account to test the system instantly:
+**Core features:**
+- User registration with hub assignment
+- JWT-based login and authentication
+- Shipment log submission (auth-protected)
+- Live database viewer for registered users and shipment records
 
-1. **Log In:** Click the prominent green **Authorize 🔓** button at the top right of the Swagger UI page and enter these demo credentials:
+---
+
+## 🚀 Try It Yourself (No Setup Needed)
+
+### Option A — Interactive Demo Page
+Visit **[the demo page](https://logistics-tracking-api-production.up.railway.app/)** and follow the 3-step flow:
+
+1. **Register(Optional)** — Fill in the form (defaults are pre-filled) and click *Create Account*
+2. **Login** — Switch to the Login tab. You can authorize using your newly created user profile, or use the default system credentials:
    * **Username:** `admin`
    * **Password:** `password123`
-2. Just click **Authorize**, then click **Close**. You are now authorized to submit new logistics records and view the live database.
-3. **Post Data & View the Live Database:**
-   * **Post Data:** Head over to `Shipment Tracking` ➔ `POST /logs` ➔ `Try it out` ➔ enter tracking details ➔ `Execute` to write new log data instantly.
-   * **View the Live DB:** Head over to `Raw Database Content` ➔ `GET /tracking_database` ➔ `Try it out` ➔ `Execute` to see real-time JSON data logs pulled directly from our PostgreSQL cloud database (Neon).
+3. **Post Log** — Switch to the Post Log tab and click *Submit Shipment Log*
 
-> 🛠️ **Custom Accounts:** If you prefer to test the system with your own unique credentials instead of the demo account, simply head over to the `Create Account` ➔ `POST /register` ➔ `Try it out` ➔ enter your account details ➔ `Execute` to register your new account to our system. **Once registered, use your newly created credentials to log in.**
-
-
-## 🛠️ Technical Overview & Architecture
-
-### Tech Stack Justification
-* **FastAPI:** Chosen for its industry-leading performance, high execution speed, and automated interactive API documentation generation.
-* **PostgreSQL:** An enterprise-grade, highly reliable relational database optimized for handling complex relationships between users, shipments, and tracking logs.
-* **SQLAlchemy (ORM):** Used to write clean, Pythonic database queries while protecting the application against SQL injection attacks.
-* **JWT Authentication:** JSON Web Tokens ensure that all client-server communications are stateless, scalable, and fully protected.
-* **Docker:** Containerized architecture ensures the system builds and runs perfectly across any server, avoiding the "works on my machine" dilemma.
-
-### System Flow
-1. **Client Request** ➔ 2. **JWT Authentication Layer** ➔ 3. **FastAPI Route Handlers** ➔ 4. **SQLAlchemy ORM Data Mapping** ➔ 5. **PostgreSQL Database Storage**
+Watch your entry appear live in the database viewer on the right.
 
 ---
+
+### Option B — Swagger UI (For Technical Users)
+
+Visit **[/docs](https://logistics-tracking-api-production.up.railway.app/docs)** and follow the numbered endpoints:
+
+**Step 1** — `POST /register` → Click **Try it out** → **Execute** (defaults are pre-filled)
+
+**Step 2** — Click the **🔒 Authorize** button → enter your username and password → **Authorize**
+
+**Step 3** — `POST /logs` → Click **Try it out** → fill in shipment details → **Execute**
+
+**Step 4** — `GET /tracking_database` → **Try it out** → **Execute** to see all records
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | FastAPI (Python) |
+| Database | PostgreSQL (Neon.tech) |
+| ORM | SQLAlchemy |
+| Auth | JWT (PyJWT + bcrypt) |
+| Deployment | Railway |
+| Containerization | Docker |
+
+---
+
+## 📁 Project Structure
+
+```
+logistics-tracking-api/
+├── logitrack_api.py      # Main application — all routes, models, and logic
+├── requirements.txt      # Python dependencies
+├── Dockerfile            # Container build instructions
+├── static/               #
+│   ├── demo.html         # DEMO UI
+├── .env.example          # Environment variable template
+└── README.md
+```
+---
+
+## 📬 API Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/register` | ❌ | Create a new user account |
+| `POST` | `/login` | ❌ | Log in and receive a JWT token |
+| `POST` | `/logs` | ✅ | Submit a shipment log |
+| `GET` | `/tracking_database` | ✅ | View all shipment records |
+| `GET` | `/users_database` | ❌ | View all registered users (demo) |
+| `GET` | `/` | ❌ | Interactive demo page |
+| `GET` | `/docs` | ❌ | Swagger UI documentation |
+
+---
+
+## 👨‍💻 Author
+
+**jharviy** — [GitHub](https://github.com/jharviy)
+
+Built as a portfolio project to demonstrate backend API development with Python.

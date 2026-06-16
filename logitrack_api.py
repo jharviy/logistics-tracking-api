@@ -245,13 +245,13 @@ def write_log(
     }
 
 
-@app.get("/tracking_database", tags=["4️⃣  View Database"], summary="View all shipment logs", description="Returns all shipment records in the database. Requires authentication.")
+@app.get("/tracking_database", tags=["View Database"], summary="View all shipment logs", description="Returns all shipment records in the database. Requires authentication.")
 def show_tracking_database(db: Session = Depends(get_db), current_user: str = Depends(get_current_user)):
     logs = db.query(TrackingLog).all()
     return logs
 
 
-@app.get("/users_database", tags=["4️⃣  View Database"], summary="View all registered users", description="Returns all registered users — passwords excluded. Public endpoint for demo purposes.")
+@app.get("/users_database", tags=["View Database"], summary="View all registered users", description="Returns all registered users — passwords excluded. Public endpoint for demo purposes.")
 def show_users_database(db: Session = Depends(get_db)):
     users = db.query(User).all()
     return [
